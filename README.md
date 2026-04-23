@@ -1,3 +1,4 @@
+<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 03 29" src="https://github.com/user-attachments/assets/a685aeb5-a14d-4a9e-b26b-75ff6c6b620d" />
 # Building PES-VCS — A Version Control System from Scratch
 
 **Objective:** Build a local version control system that tracks file changes, stores snapshots efficiently, and supports commit history. Every component maps directly to operating system and filesystem concepts.
@@ -32,7 +33,7 @@ This section contains the required screenshots and the written answers for the a
 
 ### Screenshot 1A — `./test_objects` output
 
-![Screenshot 1A](images/1A_test_objects.jpg)
+![Screenshot 1A](<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 03 29" src="https://github.com/user-attachments/assets/a685aeb5-a14d-4a9e-b26b-75ff6c6b620d" />)
 
 This confirms successful blob storage, deduplication, and integrity checking in the object store implementation.
 
@@ -144,3 +145,284 @@ Running garbage collection concurrently with commit creation creates a race betw
 
 ```bash
 sudo apt update && sudo apt install -y gcc build-essential libssl-dev
+```
+Your project at commit A:          Your project at commit B:
+                                   (only README changed)
+
+    root/                              root/
+    ├── README.md  ─────┐              ├── README.md  ─────┐
+    ├── src/            │              ├── src/            │
+    │   └── main.c ─────┼─┐            │   └── main.c ─────┼─┐
+    └── Makefile ───────┼─┼─┐          └── Makefile ───────┼─┼─┐
+                        │ │ │                              │ │ │
+                        ▼ ▼ ▼                              ▼ ▼ ▼
+    Object Store:       ┌─────────────────────────────────────────────┐
+                        │  a1b2c3 (README v1)    ← only this is new   │
+                        │  d4e5f6 (README v2)                         │
+                        │  789abc (main.c)       ← shared by both!    │
+                        │  fedcba (Makefile)     ← shared by both!    │
+                        └─────────────────────────────────────────────┘
+```
+### The Three Object Types
+
+#### 1. Blob (Binary Large Object)
+
+A blob is just file contents. No filename, no permissions — just the raw bytes.
+
+```
+blob 16\0Hello, World!\n
+     ↑    ↑
+     │    └── The actual file content
+     └─────── Size in bytes
+```
+
+The blob is stored at a path determined by its SHA-256 hash. If two files have identical contents, they share one blob.
+
+#### 2. Tree
+
+A tree represents a directory. It's a list of entries, each pointing to a blob (file) or another tree (subdirectory).
+
+```
+100644 blob a1b2c3d4... README.md
+100755 blob e5f6a7b8... build.sh        ← executable file
+040000 tree 9c0d1e2f... src             ← subdirectory
+       ↑    ↑           ↑
+       │    │           └── name
+       │    └── hash of the object
+       └─────── mode (permissions + type)
+```
+
+Mode values:
+- `100644` — regular file, not executable
+- `100755` — regular file, executable
+- `040000` — directory (tree)
+
+#### 3. Commit
+
+A commit ties everything together. It points to a tree (the project snapshot) and contains metadata.
+
+```
+tree 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d
+parent a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0
+author Alice <alice@example.com> 1699900000
+committer Alice <alice@example.com> 1699900000
+
+Add new feature
+```
+
+The parent pointer creates a linked list of history:
+
+```
+    C3 ──────► C2 ──────► C1 ──────► (no parent)
+    │          │          │
+    ▼          ▼          ▼
+  Tree3      Tree2      Tree1
+```
+
+### How Objects Connect
+
+```
+                    ┌─────────────────────────────────┐
+                    │           COMMIT                │
+                    │  tree: 7a3f...                  │
+                    │  parent: 4b2e...                │
+                    │  author: Alice                  │
+                    │  message: "Add feature"         │
+                    └─────────────┬───────────────────┘
+                                  │
+                                  ▼
+                    ┌─────────────────────────────────┐
+                    │         TREE (root)             │
+                    │  100644 blob f1a2... README.md  │
+                    │  040000 tree 8b3c... src        │
+                    │  100644 blob 9d4e... Makefile   │
+                    └──────┬──────────┬───────────────┘
+                           │          │
+              ┌────────────┘          └────────────┐
+              ▼                                    ▼
+┌─────────────────────────┐          ┌─────────────────────────┐
+│      TREE (src)         │          │     BLOB (README.md)    │
+│ 100644 blob a5f6 main.c │          │  # My Project           │
+└───────────┬─────────────┘          └─────────────────────────┘
+            ▼
+       ┌────────┐
+       │ BLOB   │
+       │main.c  │
+       └────────┘
+```
+
+### References and HEAD
+
+References are files that map human-readable names to commit hashes:
+
+```
+.pes/
+├── HEAD                    # "ref: refs/heads/main"
+└── refs/
+    └── heads/
+        └── main            # Contains: a1b2c3d4e5f6...
+```
+
+**HEAD** points to a branch name. The branch file contains the latest commit hash. When you commit:
+
+1. Git creates the new commit object (pointing to parent)
+2. Updates the branch file to contain the new commit's hash
+3. HEAD still points to the branch, so it "follows" automatically
+
+```
+Before commit:                    After commit:
+
+HEAD ─► main ─► C2 ─► C1         HEAD ─► main ─► C3 ─► C2 ─► C1
+```
+### Testing
+
+```bash
+make test_objects
+./test_objects
+```
+
+The test program verifies:
+- Blob storage and retrieval (write, read back, compare)
+- Deduplication (same content → same hash → stored once)
+- Integrity checking (detects corrupted objects)
+
+**📸 Screenshot 1A:** Output of `./test_objects` showing all tests passing.
+
+**📸 Screenshot 1B:** `find .pes/objects -type f` showing the sharded directory structure.
+
+---
+
+## Phase 2: Tree Objects
+
+**Filesystem Concepts:** Directory representation, recursive structures, file modes and permissions
+
+**Files:** `tree.h` (read), `tree.c` (implement all TODO functions)
+
+### What to Implement
+
+Open `tree.c`. Implement the function marked `// TODO`:
+
+1. **`tree_from_index`** — Builds a tree hierarchy from the index.
+   - Handles nested paths: `"src/main.c"` must create a `src` subtree
+   - This is what `pes commit` uses to create the snapshot
+   - Writes all tree objects to the object store and returns the root hash
+
+### Testing
+
+```bash
+make test_tree
+./test_tree
+```
+
+The test program verifies:
+- Serialize → parse roundtrip preserves entries, modes, and hashes
+- Deterministic serialization (same entries in any order → identical output)
+
+**📸 Screenshot 2A:** Output of `./test_tree` showing all tests passing.
+
+**📸 Screenshot 2B:** Pick a tree object from `find .pes/objects -type f` and run `xxd .pes/objects/XX/YYY... | head -20` to show the raw binary format.
+
+---
+
+## Phase 3: The Index (Staging Area)
+
+**Filesystem Concepts:** File format design, atomic writes, change detection using metadata
+
+**Files:** `index.h` (read), `index.c` (implement all TODO functions)
+
+### What to Implement
+
+Open `index.c`. Three functions are marked `// TODO`:
+
+1. **`index_load`** — Reads the text-based `.pes/index` file into an `Index` struct.
+   - If the file doesn't exist, initializes an empty index (this is not an error)
+   - Parses each line: `<mode> <hash-hex> <mtime> <size> <path>`
+
+2. **`index_save`** — Writes the index atomically (temp file + rename).
+   - Sorts entries by path before writing
+   - Uses `fsync()` on the temp file before renaming
+
+3. **`index_add`** — Stages a file: reads it, writes blob to object store, updates index entry.
+   - Use the provided `index_find` to check for an existing entry
+
+`index_find` , `index_status` and `index_remove` are already implemented for you — read them to understand the index data structure before starting.
+
+#### Expected Output of `pes status`
+
+```
+Staged changes:
+  staged:     hello.txt
+  staged:     src/main.c
+
+Unstaged changes:
+  modified:   README.md
+  deleted:    old_file.txt
+
+Untracked files:
+  untracked:  notes.txt
+```
+
+If a section has no entries, print the header followed by `(nothing to show)`.
+
+### Testing
+
+```bash
+make pes
+./pes init
+echo "hello" > file1.txt
+echo "world" > file2.txt
+./pes add file1.txt file2.txt
+./pes status
+cat .pes/index    # Human-readable text format
+```
+
+**📸 Screenshot 3A:** Run `./pes init`, `./pes add file1.txt file2.txt`, `./pes status` — show the output.
+
+**📸 Screenshot 3B:** `cat .pes/index` showing the text-format index with your entries.
+
+---
+
+## Phase 4: Commits and History
+
+**Filesystem Concepts:** Linked structures on disk, reference files, atomic pointer updates
+
+**Files:** `commit.h` (read), `commit.c` (implement all TODO functions)
+
+### What to Implement
+
+Open `commit.c`. One function is marked `// TODO`:
+
+1. **`commit_create`** — The main commit function:
+   - Builds a tree from the index using `tree_from_index()` (**not** from the working directory — commits snapshot the staged state)
+   - Reads current HEAD as the parent (may not exist for first commit)
+   - Gets the author string from `pes_author()` (defined in `pes.h`)
+   - Writes the commit object, then updates HEAD
+
+`commit_parse`, `commit_serialize`, `commit_walk`, `head_read`, and `head_update` are already implemented — read them to understand the commit format before writing `commit_create`.
+
+The commit text format is specified in the comment at the top of `commit.c`.
+
+### Testing
+
+```bash
+./pes init
+echo "Hello" > hello.txt
+./pes add hello.txt
+./pes commit -m "Initial commit"
+
+echo "World" >> hello.txt
+./pes add hello.txt
+./pes commit -m "Add world"
+
+echo "Goodbye" > bye.txt
+./pes add bye.txt
+./pes commit -m "Add farewell"
+
+./pes log
+```
+
+You can also run the full integration test:
+
+```bash
+make test-integration
+```
