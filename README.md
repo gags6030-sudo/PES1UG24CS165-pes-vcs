@@ -38,7 +38,8 @@ This confirms successful blob storage, deduplication, and integrity checking in 
 
 ### Screenshot 1B — `find .pes/objects -type f`
 
-![Screenshot 1B](images/1B_objects_structure.jpg)
+![Screenshot 1B]<img width="2170" height="725" alt="image" src="https://github.com/user-attachments/assets/f850944e-1a43-48fd-aa94-61e785cdb250" />
+
 
 The object files are sharded by the first two hexadecimal characters of the hash, which matches the intended content-addressable storage layout.
 
@@ -48,7 +49,8 @@ The object files are sharded by the first two hexadecimal characters of the hash
 
 ### Screenshot 2A — `./test_tree` output
 
-![Screenshot 2A](images/2A_test_tree.jpg)
+![Screenshot 2A]<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 11 26" src="https://github.com/user-attachments/assets/f27c5bff-ff0e-42ad-9724-06e72792046e" />
+
 
 This shows that tree serialization and parsing are consistent and that the serialized ordering is deterministic.
 
