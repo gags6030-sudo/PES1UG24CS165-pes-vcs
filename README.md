@@ -1,4 +1,3 @@
-<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 03 29" src="https://github.com/user-attachments/assets/a685aeb5-a14d-4a9e-b26b-75ff6c6b620d" />
 # Building PES-VCS — A Version Control System from Scratch
 
 **Objective:** Build a local version control system that tracks file changes, stores snapshots efficiently, and supports commit history. Every component maps directly to operating system and filesystem concepts.
@@ -33,7 +32,7 @@ This section contains the required screenshots and the written answers for the a
 
 ### Screenshot 1A — `./test_objects` output
 
-![Screenshot 1A](<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 03 29" src="https://github.com/user-attachments/assets/a685aeb5-a14d-4a9e-b26b-75ff6c6b620d" />)
+<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 03 29" src="https://github.com/user-attachments/assets/a685aeb5-a14d-4a9e-b26b-75ff6c6b620d" />
 
 This confirms successful blob storage, deduplication, and integrity checking in the object store implementation.
 
