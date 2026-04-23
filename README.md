@@ -56,7 +56,8 @@ This shows that tree serialization and parsing are consistent and that the seria
 
 ### Screenshot 2B — raw tree object via `xxd`
 
-![Screenshot 2B](images/2B_tree_xxd.jpg)
+![Screenshot 2B]<img width="2171" height="724" alt="image" src="https://github.com/user-attachments/assets/480cc6e9-24d9-47d0-9764-7b8653e1f381" />
+
 
 The raw dump shows the tree header followed by serialized entries containing mode, filename, and binary object hashes.
 
@@ -66,13 +67,14 @@ The raw dump shows the tree header followed by serialized entries containing mod
 
 ### Screenshot 3A — `pes init -> pes add -> pes status`
 
-![Screenshot 3A](images/3A_status.jpg)
+![Screenshot 3A]<img width="1536" height="1024" alt="WhatsApp Image 2026-04-20 at 12 11 46" src="https://github.com/user-attachments/assets/9aa4d7be-11b5-4d9b-8364-0a37c75a69db" />
+
 
 The status output shows that staged files are tracked correctly and that no unstaged changes are reported immediately after adding them.
 
 ### Screenshot 3B — `cat .pes/index`
 
-![Screenshot 3B](images/3B_index.jpg)
+![Screenshot 3B]<img width="2170" height="725" alt="image" src="https://github.com/user-attachments/assets/f43fb7af-c277-4005-975c-d2be1190cc54" />
 
 The index stores the file mode, blob hash, modification time, size, and path in the expected text format.
 
@@ -82,13 +84,15 @@ The index stores the file mode, blob hash, modification time, size, and path in 
 
 ### Screenshot 4A — `pes log`
 
-![Screenshot 4A](images/4A_log.jpg)
+![Screenshot 4A]<img width="1862" height="845" alt="image" src="https://github.com/user-attachments/assets/b8ea40b8-773f-4bb3-a8fb-2d0b7fd06feb" />
+
 
 The log confirms that commits are linked through parents and printed from newest to oldest with author, timestamp, and message metadata.
 
 ### Screenshot 4B — `find .pes -type f | sort`
 
-![Screenshot 4B](images/4B_objects_growth.jpg)
+![Screenshot 4B]<img width="2171" height="724" alt="image" src="https://github.com/user-attachments/assets/01f848de-9635-4a66-8dfe-f60b254281f6" />
+
 
 This listing shows the growth of repository metadata after multiple commits, including refs, the index, and newly created objects.
 
